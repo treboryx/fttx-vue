@@ -5,6 +5,7 @@
       :zoom="zoom"
       class="w-full bg-gray-500 h-full"
       ref="mapRef"
+      :options="options"
       @dragend="handleDrag"
     >
       <gmap-info-window
@@ -149,6 +150,8 @@
 <script>
 import axios from "axios";
 import * as MarkerClusterer from "marker-clusterer-plus";
+import mapStyle from "../assets/map-style.json";
+import { clusterStyle } from "../assets/options";
 
 export default {
   data() {
@@ -160,6 +163,9 @@ export default {
       },
       zoom: 10,
       windowHeight: `${window.innerHeight - 65}px`,
+      options: {
+        styles: mapStyle,
+      },
       buttons: {
         ote: {
           isOn: false,
@@ -179,6 +185,7 @@ export default {
         },
       },
       storedMarkers: [],
+      markerCluster: null,
       debugging: true,
       paths: [
         { lat: 25.774, lng: -80.19 },
@@ -232,39 +239,68 @@ export default {
     this.$refs.mapRef.$mapPromise.then((map) => (this.map = map));
   },
   methods: {
-    showCabinets(cab) {
+    async showCabinets(cab) {
       const format = {
         ote: "OTE",
         wind: "WIND",
         vf: "Vodafone",
         rurcon: "RURALCONNECT",
       };
-      let ispCabinets = this.storedMarkers.filter(
-        (d) => d.db.isp === format[cab]
-      );
       if (this.buttons[cab].isOn) {
-        ispCabinets.forEach((c) => {
-          c.setMap(this.map);
+        let c = await axios
+          .get(`https://api.fttx.gr/api/v1/cabinets?isp=${format[cab]}&limit=0`)
+          .then((r) => r);
+        this.storedMarkers.push(format[cab]);
+        c.data.data.forEach((d) => {
+          d.infoText = `Cabinet ID ${d._id}. ISP: ${d.isp}`;
+          const marker = new google.maps.Marker({
+            position: d.position,
+            map: this.map,
+          });
+          marker.db = d;
           const infowindow = new google.maps.InfoWindow({
-            content: c.db.infoText,
+            content: d.infoText,
           });
-          c.addListener("click", function() {
-            infowindow.open(this.map, c);
+          marker.addListener("click", function() {
+            infowindow.open(this.map, marker);
           });
-          this.markers.push(c);
+          this.markers.push(marker);
         });
-        var mcOptions = { gridSize: 40, maxZoom: 15 };
-        var markerCluster = new MarkerClusterer(
-          this.map,
-          this.markers,
-          mcOptions
-        );
+        this.clusterMyMarkers();
       }
       if (!this.buttons[cab].isOn) {
-        ispCabinets.forEach((c) => {
-          c.setMap(null);
-          this.markers = this.markers.filter((d) => d.db.isp !== format[cab]);
+        let c = this.markers.filter((d) => d.db.isp === format[cab]);
+        c.forEach((ca) => {
+          ca.setVisible(false);
         });
+        this.clusterMyMarkers();
+      }
+    },
+    clusterMyMarkers() {
+      if (!this.markerCluster) {
+        const mcOptions = {
+          gridSize: 40,
+          maxZoom: 15,
+          styles: clusterStyle,
+        };
+        this.markerCluster = new MarkerClusterer(
+          this.map,
+          this.markers.filter((d) => d.visible === true),
+          mcOptions
+        );
+      } else {
+        this.markerCluster.clearMarkers();
+        this.markerCluster = null;
+        const mcOptions = {
+          gridSize: 40,
+          maxZoom: 15,
+          styles: clusterStyle,
+        };
+        this.markerCluster = new MarkerClusterer(
+          this.map,
+          this.markers.filter((d) => d.visible === true),
+          mcOptions
+        );
       }
     },
     setDescription(description) {
@@ -385,32 +421,46 @@ export default {
     if (window.location.pathname.includes(cabQuery)) {
       const cabId = window.location.pathname.split(cabQuery)[1];
     }
-
-    let cabinets = await axios
-      .get("https://api.fttx.gr/api/v1/cabinets?limit=0")
+    let dslam = await axios
+      .get("https://api.fttx.gr/api/v1/cabinets?type=DSLAM&limit=0")
       .then((r) => r);
-    // cabinets = cabinets.toJSON();
-    cabinets.data.data.forEach((c) => {
-      c.infoText = `Cabinet ID ${c._id}`;
+
+    dslam.data.data.forEach((d) => {
+      d.infoText = `DSLAM ID ${d._id}. ISP: ${d.isp}`;
       const marker = new google.maps.Marker({
-        position: c.position,
-        map: null,
+        position: d.position,
+        map: this.map,
       });
-      marker.db = c;
+      marker.db = d;
       const infowindow = new google.maps.InfoWindow({
-        content: c.infoText,
+        content: d.infoText,
       });
       marker.addListener("click", function() {
         infowindow.open(this.map, marker);
       });
-      this.storedMarkers.push(marker);
-      if (c.type === "DSLAM") {
-        marker.map = this.map;
-        this.markers.push(marker);
-      }
+      this.markers.push(marker);
     });
-    var mcOptions = { gridSize: 40, maxZoom: 15 };
-    var markerCluster = new MarkerClusterer(this.map, this.markers, mcOptions);
+
+    // let cabinets = await axios
+    //   .get("https://api.fttx.gr/api/v1/cabinets?limit=0")
+    //   .then((r) => r);
+    // // cabinets = cabinets.toJSON();
+    // cabinets.data.data.forEach((c) => {
+    //   c.infoText = `Cabinet ID ${c._id}. ISP: ${c.isp}`;
+    //   const marker = new google.maps.Marker({
+    //     position: c.position,
+    //     map: null,
+    //   });
+    //   marker.db = c;
+    //   const infowindow = new google.maps.InfoWindow({
+    //     content: c.infoText,
+    //   });
+    //   marker.addListener("click", function() {
+    //     infowindow.open(this.map, marker);
+    //   });
+    //   this.storedMarkers.push(marker);
+    // });
+    this.clusterMyMarkers();
   },
 };
 </script>
