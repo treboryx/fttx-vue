@@ -247,59 +247,80 @@ export default {
         rurcon: "RURALCONNECT",
       };
       if (this.buttons[cab].isOn) {
-        let c = await axios
-          .get(`https://api.fttx.gr/api/v1/cabinets?isp=${format[cab]}&limit=0`)
-          .then((r) => r);
-        this.storedMarkers.push(format[cab]);
-        c.data.data.forEach((d) => {
-          d.infoText = `Cabinet ID ${d._id}. ISP: ${d.isp}`;
-          const marker = new google.maps.Marker({
-            position: d.position,
-            map: this.map,
+        let temp = [];
+        if (this.storedMarkers.includes(format[cab])) {
+          const c = this.markers.filter((m) => m.db.isp === format[cab]);
+          c.forEach((ca) => {
+            temp.push(ca);
+            ca.setVisible(true);
           });
-          marker.db = d;
-          const infowindow = new google.maps.InfoWindow({
-            content: d.infoText,
+        } else {
+          let c = await axios
+            .get(
+              `https://api.fttx.gr/api/v1/cabinets?isp=${format[cab]}&limit=0`
+            )
+            .then((r) => r);
+
+          this.storedMarkers.push(format[cab]);
+          c.data.data.forEach((d) => {
+            d.infoText = `Cabinet ID ${d._id}. ISP: ${d.isp}`;
+            const marker = new google.maps.Marker({
+              position: d.position,
+              map: this.map,
+            });
+            marker.db = d;
+            const infowindow = new google.maps.InfoWindow({
+              content: d.infoText,
+            });
+            marker.addListener("click", function() {
+              infowindow.open(this.map, marker);
+            });
+            this.markers.push(marker);
+            temp.push(marker);
           });
-          marker.addListener("click", function() {
-            infowindow.open(this.map, marker);
-          });
-          this.markers.push(marker);
-        });
-        this.clusterMyMarkers();
+        }
+        this.markerCluster.addMarkers(temp);
+
+        // this.clusterMyMarkers();
       }
       if (!this.buttons[cab].isOn) {
         let c = this.markers.filter((d) => d.db.isp === format[cab]);
         c.forEach((ca) => {
           ca.setVisible(false);
         });
-        this.clusterMyMarkers();
+        this.clusterMyMarkers("clear");
       }
     },
-    clusterMyMarkers() {
-      if (!this.markerCluster) {
-        const mcOptions = {
-          gridSize: 40,
-          maxZoom: 15,
-          styles: clusterStyle,
-        };
-        this.markerCluster = new MarkerClusterer(
-          this.map,
-          this.markers.filter((d) => d.visible === true),
-          mcOptions
-        );
-      } else {
-        this.markerCluster.clearMarkers();
-        this.markerCluster = null;
-        const mcOptions = {
-          gridSize: 40,
-          maxZoom: 15,
-          styles: clusterStyle,
-        };
-        this.markerCluster = new MarkerClusterer(
-          this.map,
-          this.markers.filter((d) => d.visible === true),
-          mcOptions
+    clusterMyMarkers(action = "default") {
+      if (action === "default") {
+        if (!this.markerCluster) {
+          const mcOptions = {
+            gridSize: 40,
+            maxZoom: 15,
+            styles: clusterStyle,
+          };
+          this.markerCluster = new MarkerClusterer(
+            this.map,
+            this.markers.filter((d) => d.visible === true),
+            mcOptions
+          );
+        } else {
+          this.markerCluster.clearMarkers();
+          this.markerCluster = null;
+          const mcOptions = {
+            gridSize: 40,
+            maxZoom: 15,
+            styles: clusterStyle,
+          };
+          this.markerCluster = new MarkerClusterer(
+            this.map,
+            this.markers.filter((d) => d.visible === true),
+            mcOptions
+          );
+        }
+      } else if (action === "clear") {
+        this.markerCluster.removeMarkers(
+          this.markers.filter((d) => d.visible === false)
         );
       }
     },
