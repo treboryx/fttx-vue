@@ -21,7 +21,7 @@
         :key="index"
         :position="marker.position"
         @click="markerInfo(marker, index)"
-      ></Gmap-Marker> -->
+      ></Gmap-Marker>-->
       <Gmap-Marker
         v-if="this.place"
         label="!"
@@ -47,20 +47,11 @@
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
           @click="usePlace"
-        >
-          Add
-        </button>
+        >Add</button>
       </label>
-      <!-- <label class="md:w-2/3 block text-gray-500 font-bold">
-        <input class="mr-2 leading-tight" type="checkbox" />
-        <span class="text-sm">Send me your newsletter!</span>
-      </label>-->
     </div>
     <div class="relative h-full w-full">
-      <div
-        class="absolute bottom-0 right-0 h-64 w-48"
-        style="text-align: left;"
-      >
+      <div class="absolute bottom-0 right-0 h-64 w-48" style="text-align: left;">
         <button
           @click="
             buttons.ote.isOn = !buttons.ote.isOn;
@@ -74,9 +65,7 @@
           type="button"
           style="position: fixed; z-index: 999; bottom: 600px;"
           class="bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
-        >
-          {{ buttons.ote.text }}
-        </button>
+        >{{ buttons.ote.text }}</button>
         <button
           @click="
             buttons.wind.isOn = !buttons.wind.isOn;
@@ -89,9 +78,7 @@
           "
           style="position: fixed; z-index: 999; bottom: 550px;"
           class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-        >
-          {{ buttons.wind.text }}
-        </button>
+        >{{ buttons.wind.text }}</button>
         <button
           @click="
             buttons.vf.isOn = !buttons.vf.isOn;
@@ -104,9 +91,7 @@
           "
           style="position: fixed; z-index: 999; bottom: 500px;"
           class="bg-red-700 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
-        >
-          {{ buttons.vf.text }}
-        </button>
+        >{{ buttons.vf.text }}</button>
         <button
           @click="
             buttons.rurcon.isOn = !buttons.rurcon.isOn;
@@ -119,21 +104,17 @@
           "
           style="position: fixed; z-index: 999; bottom: 450px;"
           class="bg-orange-800 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-        >
-          {{ buttons.rurcon.text }}
-        </button>
+        >{{ buttons.rurcon.text }}</button>
       </div>
     </div>
 
-    <div v-if="debugging" style="z-index: 999;">
+    <!-- <div v-if="debugging" style="z-index: 999;">
       <div
         style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between"
       >
         <div>
           <h1>Your coordinates:</h1>
-          <p>
-            {{ myCoordinates.lat }} Latitude, {{ myCoordinates.lng }} Longitude
-          </p>
+          <p>{{ myCoordinates.lat }} Latitude, {{ myCoordinates.lng }} Longitude</p>
         </div>
         <div>
           <h1>Map coordinates:</h1>
@@ -143,15 +124,13 @@
           </p>
         </div>
       </div>
-    </div>
-    -->
+    </div>-->
   </div>
 </template>
 <script>
 import axios from "axios";
 import * as MarkerClusterer from "marker-clusterer-plus";
-import mapStyle from "../assets/map-style.json";
-import { clusterStyle } from "../assets/options";
+import { clusterStyle, mapStyle } from "../assets/options";
 
 export default {
   data() {
@@ -207,7 +186,7 @@ export default {
       currentMidx: null,
 
       infoOptions: {
-        content: "",
+        content: "test",
         //optional: offset infowindow so it visually sits nicely on top of our marker
         pixelOffset: {
           width: 0,
@@ -246,6 +225,13 @@ export default {
         vf: "Vodafone",
         rurcon: "RURALCONNECT",
       };
+
+      const markerIcon = {
+        Vodafone: "https://i.imgur.com/O4LgOzH.png",
+        OTE: "https://i.imgur.com/VSWepKX.png",
+        WIND: "https://i.imgur.com/EJpSoYP.png",
+        RURALCONNECT: "https://i.imgur.com/XPRiwcA.png",
+      };
       if (this.buttons[cab].isOn) {
         let temp = [];
         if (this.storedMarkers.includes(format[cab])) {
@@ -264,15 +250,22 @@ export default {
           this.storedMarkers.push(format[cab]);
           c.data.data.forEach((d) => {
             d.infoText = `Cabinet ID ${d._id}. ISP: ${d.isp}`;
+            const icon = {
+              url: markerIcon[format[cab]], // url
+              scaledSize: new google.maps.Size(24, 36), // scaled size
+              origin: new google.maps.Point(0, 0), // origin
+              anchor: new google.maps.Point(0, 0), // anchor
+            };
             const marker = new google.maps.Marker({
               position: d.position,
               map: this.map,
+              icon,
             });
             marker.db = d;
             const infowindow = new google.maps.InfoWindow({
               content: d.infoText,
             });
-            marker.addListener("click", function() {
+            marker.addListener("click", function () {
               infowindow.open(this.map, marker);
             });
             this.markers.push(marker);
@@ -292,30 +285,25 @@ export default {
       }
     },
     clusterMyMarkers(action = "default") {
+      const clusterOptions = {
+        gridSize: 40,
+        maxZoom: 15,
+        // styles: clusterStyle,
+      };
       if (action === "default") {
         if (!this.markerCluster) {
-          const mcOptions = {
-            gridSize: 40,
-            maxZoom: 15,
-            styles: clusterStyle,
-          };
           this.markerCluster = new MarkerClusterer(
             this.map,
             this.markers.filter((d) => d.visible === true),
-            mcOptions
+            clusterOptions
           );
         } else {
           this.markerCluster.clearMarkers();
           this.markerCluster = null;
-          const mcOptions = {
-            gridSize: 40,
-            maxZoom: 15,
-            styles: clusterStyle,
-          };
           this.markerCluster = new MarkerClusterer(
             this.map,
             this.markers.filter((d) => d.visible === true),
-            mcOptions
+            clusterOptions
           );
         }
       } else if (action === "clear") {
@@ -384,12 +372,8 @@ export default {
       var distances = [];
       var closest = -1;
       for (var i = 0; i < this.markers.length; i++) {
-        let pos = new google.maps.LatLng(
-          this.markers[i].position.lat,
-          this.markers[i].position.lng
-        );
         var d = google.maps.geometry.spherical.computeDistanceBetween(
-          pos,
+          this.markers[i].position,
           this.place.geometry.location
         );
         distances[i] = d;
@@ -398,19 +382,10 @@ export default {
         }
       }
 
-      //   this.infoOptions.content = this.markers[closest].infoText;
+      // this.infoOptions.content = this.markers[closest].infoText;
       this.infoOptions.content = `<a style="color: purple">Closest marker is <b>${d.toFixed(
         2
       )}</b> meters</a>`;
-      //check if its the same marker that was selected if yes toggle
-      //   if (this.currentMidx == idx) {
-      //     this.infoWinOpen = !this.infoWinOpen;
-      //   }
-      //   //if different marker set infowindow to open and reset current marker index
-      //   else {
-      //     this.infoWinOpen = true;
-      //     this.currentMidx = idx;
-      //   }
     },
   },
   computed: {
@@ -423,21 +398,12 @@ export default {
       }
 
       return {
-        lat: this.map
-          .getCenter()
-          .lat()
-          .toFixed(4),
-        lng: this.map
-          .getCenter()
-          .lng()
-          .toFixed(4),
+        lat: this.map.getCenter().lat().toFixed(4),
+        lng: this.map.getCenter().lng().toFixed(4),
       };
     },
   },
   async created() {
-    // MarkerClusterer.prototype.getDraggable = function() {
-    //   return false;
-    // };
     const cabQuery = "cabinet?id=";
     if (window.location.pathname.includes(cabQuery)) {
       const cabId = window.location.pathname.split(cabQuery)[1];
@@ -456,31 +422,12 @@ export default {
       const infowindow = new google.maps.InfoWindow({
         content: d.infoText,
       });
-      marker.addListener("click", function() {
+      marker.addListener("click", function () {
+        this.showInfo;
         infowindow.open(this.map, marker);
       });
       this.markers.push(marker);
     });
-
-    // let cabinets = await axios
-    //   .get("https://api.fttx.gr/api/v1/cabinets?limit=0")
-    //   .then((r) => r);
-    // // cabinets = cabinets.toJSON();
-    // cabinets.data.data.forEach((c) => {
-    //   c.infoText = `Cabinet ID ${c._id}. ISP: ${c.isp}`;
-    //   const marker = new google.maps.Marker({
-    //     position: c.position,
-    //     map: null,
-    //   });
-    //   marker.db = c;
-    //   const infowindow = new google.maps.InfoWindow({
-    //     content: c.infoText,
-    //   });
-    //   marker.addListener("click", function() {
-    //     infowindow.open(this.map, marker);
-    //   });
-    //   this.storedMarkers.push(marker);
-    // });
     this.clusterMyMarkers();
   },
 };
@@ -490,16 +437,4 @@ export default {
 .vue-map-container {
   position: fixed;
 }
-
-/* .vue-map-container .vue-map {
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  position: absolute;
-}
-
-.vue-map-hidden {
-  display: none;
-} */
 </style>
