@@ -47,11 +47,16 @@
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
           @click="usePlace"
-        >Add</button>
+        >
+          Add
+        </button>
       </label>
     </div>
     <div class="relative h-full w-full">
-      <div class="absolute bottom-0 right-0 h-64 w-48" style="text-align: left;">
+      <div
+        class="absolute bottom-0 right-0 h-64 w-48"
+        style="text-align: left;"
+      >
         <button
           @click="
             buttons.ote.isOn = !buttons.ote.isOn;
@@ -65,7 +70,9 @@
           type="button"
           style="position: fixed; z-index: 999; bottom: 600px;"
           class="bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
-        >{{ buttons.ote.text }}</button>
+        >
+          {{ buttons.ote.text }}
+        </button>
         <button
           @click="
             buttons.wind.isOn = !buttons.wind.isOn;
@@ -78,7 +85,9 @@
           "
           style="position: fixed; z-index: 999; bottom: 550px;"
           class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-        >{{ buttons.wind.text }}</button>
+        >
+          {{ buttons.wind.text }}
+        </button>
         <button
           @click="
             buttons.vf.isOn = !buttons.vf.isOn;
@@ -91,7 +100,9 @@
           "
           style="position: fixed; z-index: 999; bottom: 500px;"
           class="bg-red-700 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
-        >{{ buttons.vf.text }}</button>
+        >
+          {{ buttons.vf.text }}
+        </button>
         <button
           @click="
             buttons.rurcon.isOn = !buttons.rurcon.isOn;
@@ -104,7 +115,9 @@
           "
           style="position: fixed; z-index: 999; bottom: 450px;"
           class="bg-orange-800 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-        >{{ buttons.rurcon.text }}</button>
+        >
+          {{ buttons.rurcon.text }}
+        </button>
       </div>
     </div>
 
@@ -223,10 +236,10 @@ export default {
       };
 
       const markerIcon = {
-        Vodafone: require("../assets/vf-marker-minified.png"),
-        OTE: require("../assets/ote-marker-minified.png"),
-        WIND: require("../assets/wind-marker-minified.png"),
-        RURALCONNECT: require("../assets/rurcon-marker-minified.png"),
+        Vodafone: require("../assets/img/vf-marker-minified.png"),
+        OTE: require("../assets/img/ote-marker-minified.png"),
+        WIND: require("../assets/img/wind-marker-minified.png"),
+        RURALCONNECT: require("../assets/img/rurcon-marker-minified.png"),
       };
       if (this.buttons[cab].isOn) {
         let temp = [];
@@ -261,7 +274,7 @@ export default {
             const infowindow = new google.maps.InfoWindow({
               content: d.infoText,
             });
-            marker.addListener("click", function () {
+            marker.addListener("click", function() {
               infowindow.open(this.map, marker);
             });
             this.markers.push(marker);
@@ -394,8 +407,14 @@ export default {
       }
 
       return {
-        lat: this.map.getCenter().lat().toFixed(4),
-        lng: this.map.getCenter().lng().toFixed(4),
+        lat: this.map
+          .getCenter()
+          .lat()
+          .toFixed(4),
+        lng: this.map
+          .getCenter()
+          .lng()
+          .toFixed(4),
       };
     },
   },
@@ -413,13 +432,13 @@ export default {
       const marker = new google.maps.Marker({
         position: d.position,
         map: this.map,
-        icon: require("../assets/ote-marker-dslam-minified.png"),
+        icon: require("../assets/img/ote-marker-dslam-minified.png"),
       });
       marker.db = d;
       const infowindow = new google.maps.InfoWindow({
         content: d.infoText,
       });
-      marker.addListener("click", function () {
+      marker.addListener("click", function() {
         this.showInfo;
         infowindow.open(this.map, marker);
       });

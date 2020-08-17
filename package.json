@@ -15,7 +15,8 @@
     "gh-pages": "^3.1.0",
     "marker-clusterer-plus": "^2.1.4",
     "tailwindcss": "^1.6.2",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "vue-analytics": "^5.22.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.2.0",
