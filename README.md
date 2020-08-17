@@ -1,5 +1,7 @@
 # fttx-vue
 
+## Project Trello Board - https://trello.fttx.gr
+
 ## Project setup
 
 ```
