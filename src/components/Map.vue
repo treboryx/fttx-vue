@@ -131,6 +131,7 @@
 import axios from "axios";
 import * as MarkerClusterer from "marker-clusterer-plus";
 import { clusterStyle, mapStyle } from "../assets/options";
+import borders from "../assets/borders";
 
 export default {
   data() {
@@ -166,18 +167,13 @@ export default {
       storedMarkers: [],
       markerCluster: null,
       debugging: true,
-      paths: [
-        { lat: 25.774, lng: -80.19 },
-        { lat: 18.466, lng: -66.118 },
-        { lat: 32.321, lng: -64.757 },
-        { lat: 25.774, lng: -80.19 },
-      ],
+      paths: [],
       polygonOptions: {
         strokeColor: "#FF0000",
         strokeOpacity: 0.8,
         strokeWeight: 2,
         fillColor: "#FF0000",
-        fillOpacity: 0.35,
+        fillOpacity: 0.01,
       },
       markers: [],
       place: null,
@@ -227,10 +223,10 @@ export default {
       };
 
       const markerIcon = {
-        Vodafone: "https://i.imgur.com/O4LgOzH.png",
-        OTE: "https://i.imgur.com/VSWepKX.png",
-        WIND: "https://i.imgur.com/EJpSoYP.png",
-        RURALCONNECT: "https://i.imgur.com/XPRiwcA.png",
+        Vodafone: require("../assets/vf-marker-minified.png"),
+        OTE: require("../assets/ote-marker-minified.png"),
+        WIND: require("../assets/wind-marker-minified.png"),
+        RURALCONNECT: require("../assets/rurcon-marker-minified.png"),
       };
       if (this.buttons[cab].isOn) {
         let temp = [];
@@ -259,7 +255,7 @@ export default {
             const marker = new google.maps.Marker({
               position: d.position,
               map: this.map,
-              icon,
+              icon: markerIcon[format[cab]],
             });
             marker.db = d;
             const infowindow = new google.maps.InfoWindow({
@@ -429,6 +425,9 @@ export default {
       this.markers.push(marker);
     });
     this.clusterMyMarkers();
+    borders.forEach((e) => {
+      this.paths.push(e[0]);
+    });
   },
 };
 </script>
