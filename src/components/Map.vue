@@ -413,6 +413,7 @@ export default {
       const marker = new google.maps.Marker({
         position: d.position,
         map: this.map,
+        icon: require("../assets/ote-marker-dslam-minified.png"),
       });
       marker.db = d;
       const infowindow = new google.maps.InfoWindow({
