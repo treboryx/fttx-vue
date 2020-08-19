@@ -24,12 +24,12 @@
       ></Gmap-Marker>-->
       <Gmap-Marker
         v-if="this.place"
-        label="!"
         @click="showInfo()"
         :position="{
           lat: this.place.geometry.location.lat(),
           lng: this.place.geometry.location.lng(),
         }"
+        :icon="{ url: require('../assets/img/g-marker.png')}"
       ></Gmap-Marker>
       <!-- </cluster> -->
       <gmap-polygon :options="polygonOptions" :paths="paths"></gmap-polygon>
@@ -213,6 +213,8 @@ export default {
   async mounted() {
     // add the map to a data object
     this.$refs.mapRef.$mapPromise.then((map) => (this.map = map));
+
+    // DSLAM LOADING
     let dslam = await axios
       .get("https://api.fttx.gr/api/v1/cabinets?type=DSLAM&limit=0")
       .then((r) => r);
@@ -235,6 +237,7 @@ export default {
       this.markers.push(marker);
     });
     this.clusterMyMarkers();
+    // DSLAM LOADING END -- POLYGON LOADING START
     borders.forEach((e) => {
       let storedPoly = new google.maps.Polygon({
         paths: e[0],
@@ -248,6 +251,7 @@ export default {
       this.polygons.push(storedPoly);
       this.paths.push(e[0]);
     });
+    // POLYGON LOADING END -- LOAD EVERYTHING ELSE BUT INVISIBLE (NOTE: This part here is what causing the initial lag spike because there's just too much data. Working on it.)
     let dsla = await axios
       .get("https://api.fttx.gr/api/v1/cabinets?limit=0")
       .then((r) => r);
