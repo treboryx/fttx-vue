@@ -211,6 +211,7 @@ export default {
     }
   },
   async mounted() {
+    let ref = this;
     // add the map to a data object
     this.$refs.mapRef.$mapPromise.then((map) => (this.map = map));
 
@@ -252,13 +253,11 @@ export default {
       this.paths.push(e[0]);
     });
     // POLYGON LOADING END -- LOAD EVERYTHING ELSE BUT INVISIBLE (NOTE: This part here is what causing the initial lag spike because there's just too much data. Working on it.)
-    let dsla = await axios
+    let cabinets = await axios
       .get("https://api.fttx.gr/api/v1/cabinets?limit=0")
       .then((r) => r);
-    dsla = dsla.data.data.filter((d) => d.type !== "DSLAM");
-    dsla.forEach((d) => {
-      d.infoText = `DSLAM ID ${d._id}. AK: ${d.img_url}`;
-      d.ak = d.img_url;
+    cabinets = cabinets.data.data.filter((d) => d.type !== "DSLAM");
+    cabinets.forEach((d) => {
       const marker = new google.maps.Marker({
         position: d.position,
         map: this.map,
@@ -266,12 +265,8 @@ export default {
       });
       marker.setVisible(false);
       marker.db = d;
-      const infowindow = new google.maps.InfoWindow({
-        content: d.infoText,
-      });
       marker.addListener("click", function () {
-        this.showInfo;
-        infowindow.open(this.map, marker);
+        ref.infoWindow(marker);
       });
       this.markers.push(marker);
     });
