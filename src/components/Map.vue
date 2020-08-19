@@ -220,8 +220,8 @@ export default {
       .get("https://api.fttx.gr/api/v1/cabinets?type=DSLAM&limit=0")
       .then((r) => r);
     dslam.data.data.forEach((d) => {
-      d.infoText = `DSLAM ID ${d._id}. AK: ${d.img_url}`;
       d.ak = d.img_url;
+      d.infoText = `DSLAM ID: ${d._id}<br>NAME: ${d.ak}`;
       const marker = new google.maps.Marker({
         position: d.position,
         map: this.map,
@@ -268,6 +268,10 @@ export default {
       marker.addListener("click", function () {
         ref.infoWindow(marker);
       });
+      this.storedMarkers.push("OTE");
+      this.storedMarkers.push("Vodafone");
+      this.storedMarkers.push("WIND");
+      this.storedMarkers.push("RURALCONNECT");
       this.markers.push(marker);
     });
   },
