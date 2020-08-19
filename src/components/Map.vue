@@ -47,16 +47,11 @@
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
           @click="usePlace"
-        >
-          Add
-        </button>
+        >Add</button>
       </label>
     </div>
     <div class="relative h-full w-full">
-      <div
-        class="absolute bottom-0 right-0 h-64 w-48"
-        style="text-align: left;"
-      >
+      <div class="absolute bottom-0 right-0 h-64 w-48" style="text-align: left;">
         <button
           @click="
             buttons.ote.isOn = !buttons.ote.isOn;
@@ -70,9 +65,7 @@
           type="button"
           style="position: fixed; z-index: 999; bottom: 600px;"
           class="bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
-        >
-          {{ buttons.ote.text }}
-        </button>
+        >{{ buttons.ote.text }}</button>
         <button
           @click="
             buttons.wind.isOn = !buttons.wind.isOn;
@@ -85,9 +78,7 @@
           "
           style="position: fixed; z-index: 999; bottom: 550px;"
           class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-        >
-          {{ buttons.wind.text }}
-        </button>
+        >{{ buttons.wind.text }}</button>
         <button
           @click="
             buttons.vf.isOn = !buttons.vf.isOn;
@@ -100,9 +91,7 @@
           "
           style="position: fixed; z-index: 999; bottom: 500px;"
           class="bg-red-700 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
-        >
-          {{ buttons.vf.text }}
-        </button>
+        >{{ buttons.vf.text }}</button>
         <button
           @click="
             buttons.rurcon.isOn = !buttons.rurcon.isOn;
@@ -115,9 +104,7 @@
           "
           style="position: fixed; z-index: 999; bottom: 450px;"
           class="bg-orange-800 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-        >
-          {{ buttons.rurcon.text }}
-        </button>
+        >{{ buttons.rurcon.text }}</button>
       </div>
     </div>
 
@@ -181,6 +168,7 @@ export default {
       markerCluster: null,
       debugging: true,
       paths: [],
+      polygons: [],
       polygonOptions: {
         strokeColor: "#FF0000",
         strokeOpacity: 0.8,
@@ -193,7 +181,7 @@ export default {
       infoWindowPos: null,
       infoWinOpen: false,
       currentMidx: null,
-
+      openInfoWindow: null,
       infoOptions: {
         content: "test",
         //optional: offset infowindow so it visually sits nicely on top of our marker
@@ -222,12 +210,71 @@ export default {
       this.zoom = parseInt(localStorage.zoom);
     }
   },
-  mounted() {
+  async mounted() {
     // add the map to a data object
     this.$refs.mapRef.$mapPromise.then((map) => (this.map = map));
+    let dslam = await axios
+      .get("https://api.fttx.gr/api/v1/cabinets?type=DSLAM&limit=0")
+      .then((r) => r);
+    dslam.data.data.forEach((d) => {
+      d.infoText = `DSLAM ID ${d._id}. AK: ${d.img_url}`;
+      d.ak = d.img_url;
+      const marker = new google.maps.Marker({
+        position: d.position,
+        map: this.map,
+        icon: require("../assets/img/ote-marker-dslam-minified.png"),
+      });
+      marker.db = d;
+      const infowindow = new google.maps.InfoWindow({
+        content: d.infoText,
+      });
+      marker.addListener("click", function () {
+        this.showInfo;
+        infowindow.open(this.map, marker);
+      });
+      this.markers.push(marker);
+    });
+    this.clusterMyMarkers();
+    borders.forEach((e) => {
+      let storedPoly = new google.maps.Polygon({
+        paths: e[0],
+        strokeColor: "#FFF",
+        strokeOpacity: 0,
+        strokeWeight: 2,
+        fillColor: "#FFF",
+        fillOpacity: 0,
+        map: this.map,
+      });
+      this.polygons.push(storedPoly);
+      this.paths.push(e[0]);
+    });
+    let dsla = await axios
+      .get("https://api.fttx.gr/api/v1/cabinets?limit=0")
+      .then((r) => r);
+    dsla = dsla.data.data.filter((d) => d.type !== "DSLAM");
+    dsla.forEach((d) => {
+      d.infoText = `DSLAM ID ${d._id}. AK: ${d.img_url}`;
+      d.ak = d.img_url;
+      const marker = new google.maps.Marker({
+        position: d.position,
+        map: this.map,
+        icon: require("../assets/img/ote-marker-dslam-minified.png"),
+      });
+      marker.setVisible(false);
+      marker.db = d;
+      const infowindow = new google.maps.InfoWindow({
+        content: d.infoText,
+      });
+      marker.addListener("click", function () {
+        this.showInfo;
+        infowindow.open(this.map, marker);
+      });
+      this.markers.push(marker);
+    });
   },
   methods: {
     async showCabinets(cab) {
+      let ref = this;
       const format = {
         ote: "OTE",
         wind: "WIND",
@@ -258,24 +305,17 @@ export default {
 
           this.storedMarkers.push(format[cab]);
           c.data.data.forEach((d) => {
-            d.infoText = `Cabinet ID ${d._id}. ISP: ${d.isp}`;
-            const icon = {
-              url: markerIcon[format[cab]], // url
-              scaledSize: new google.maps.Size(24, 36), // scaled size
-              origin: new google.maps.Point(0, 0), // origin
-              anchor: new google.maps.Point(0, 0), // anchor
-            };
+            const dslams = this.markers.filter((d) => d.db.type === "DSLAM");
+            let ak;
             const marker = new google.maps.Marker({
               position: d.position,
               map: this.map,
               icon: markerIcon[format[cab]],
             });
             marker.db = d;
-            const infowindow = new google.maps.InfoWindow({
-              content: d.infoText,
-            });
-            marker.addListener("click", function() {
-              infowindow.open(this.map, marker);
+
+            marker.addListener("click", function () {
+              ref.infoWindow(marker);
             });
             this.markers.push(marker);
             temp.push(marker);
@@ -292,6 +332,36 @@ export default {
         });
         this.clusterMyMarkers("clear");
       }
+    },
+    infoWindow(marker) {
+      if (this.openInfoWindow) {
+        this.openInfoWindow.close();
+        this.openInfoWindow = null;
+      }
+      let ak;
+      this.polygons.forEach((p) => {
+        if (
+          google.maps.geometry.poly.containsLocation(marker.getPosition(), p)
+        ) {
+          this.markers.forEach((m) => {
+            if (m.db.type === "DSLAM") {
+              if (
+                google.maps.geometry.poly.containsLocation(m.getPosition(), p)
+              ) {
+                ak = m;
+              }
+            }
+          });
+        }
+      });
+      const text = `Cabinet ID ${marker.db._id}. ISP: ${marker.db.isp} AK: ${
+        ak ? ak.db.ak : "Unknown"
+      }`;
+      const infowindow = new google.maps.InfoWindow({
+        content: text,
+      });
+      infowindow.open(this.map, marker);
+      this.openInfoWindow = infowindow;
     },
     clusterMyMarkers(action = "default") {
       const clusterOptions = {
@@ -407,14 +477,8 @@ export default {
       }
 
       return {
-        lat: this.map
-          .getCenter()
-          .lat()
-          .toFixed(4),
-        lng: this.map
-          .getCenter()
-          .lng()
-          .toFixed(4),
+        lat: this.map.getCenter().lat().toFixed(4),
+        lng: this.map.getCenter().lng().toFixed(4),
       };
     },
   },
@@ -423,31 +487,6 @@ export default {
     if (window.location.pathname.includes(cabQuery)) {
       const cabId = window.location.pathname.split(cabQuery)[1];
     }
-    let dslam = await axios
-      .get("https://api.fttx.gr/api/v1/cabinets?type=DSLAM&limit=0")
-      .then((r) => r);
-
-    dslam.data.data.forEach((d) => {
-      d.infoText = `DSLAM ID ${d._id}. ISP: ${d.isp}`;
-      const marker = new google.maps.Marker({
-        position: d.position,
-        map: this.map,
-        icon: require("../assets/img/ote-marker-dslam-minified.png"),
-      });
-      marker.db = d;
-      const infowindow = new google.maps.InfoWindow({
-        content: d.infoText,
-      });
-      marker.addListener("click", function() {
-        this.showInfo;
-        infowindow.open(this.map, marker);
-      });
-      this.markers.push(marker);
-    });
-    this.clusterMyMarkers();
-    borders.forEach((e) => {
-      this.paths.push(e[0]);
-    });
   },
 };
 </script>
