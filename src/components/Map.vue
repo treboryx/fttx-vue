@@ -190,6 +190,12 @@ export default {
           height: -35,
         },
       },
+      markerIcons: {
+        Vodafone: require("../assets/img/vf-marker-minified.png"),
+        OTE: require("../assets/img/ote-marker-minified.png"),
+        WIND: require("../assets/img/wind-marker-minified.png"),
+        RURALCONNECT: require("../assets/img/rurcon-marker-minified.png"),
+      },
     };
   },
   created() {
@@ -217,15 +223,14 @@ export default {
 
     // DSLAM LOADING
     let dslam = await axios
-      .get("https://api.fttx.gr/api/v1/cabinets?type=DSLAM&limit=0")
+      .get("https://api.fttx.gr/api/v1/centers?limit=0&approved=true")
       .then((r) => r);
     dslam.data.data.forEach((d) => {
-      d.ak = d.img_url;
-      d.infoText = `DSLAM ID: ${d._id}<br>NAME: ${d.ak}`;
+      d.infoText = `Center ID: ${d.id}<br>NAME: ${d.name}<br>Center Database ID: ${d._id}`;
       const marker = new google.maps.Marker({
         position: d.position,
         map: this.map,
-        icon: require("../assets/img/ote-marker-dslam-minified.png"),
+        icon: require("../assets/img/ote-marker-center-minified.png"),
       });
       marker.db = d;
       const infowindow = new google.maps.InfoWindow({
@@ -254,25 +259,25 @@ export default {
     });
     // POLYGON LOADING END -- LOAD EVERYTHING ELSE BUT INVISIBLE (NOTE: This part here is what causing the initial lag spike because there's just too much data. Working on it.)
     let cabinets = await axios
-      .get("https://api.fttx.gr/api/v1/cabinets?limit=0")
+      .get("https://api.fttx.gr/api/v1/cabinets?limit=0") // must be &approved=true
       .then((r) => r);
     cabinets = cabinets.data.data.filter((d) => d.type !== "DSLAM");
     cabinets.forEach((d) => {
       const marker = new google.maps.Marker({
         position: d.position,
         map: this.map,
-        icon: require("../assets/img/ote-marker-dslam-minified.png"),
+        icon: this.markerIcons[d.isp],
       });
       marker.setVisible(false);
       marker.db = d;
       marker.addListener("click", function () {
         ref.infoWindow(marker);
       });
+      this.markers.push(marker);
       this.storedMarkers.push("OTE");
       this.storedMarkers.push("Vodafone");
       this.storedMarkers.push("WIND");
       this.storedMarkers.push("RURALCONNECT");
-      this.markers.push(marker);
     });
   },
   methods: {
@@ -285,12 +290,6 @@ export default {
         rurcon: "RURALCONNECT",
       };
 
-      const markerIcon = {
-        Vodafone: require("../assets/img/vf-marker-minified.png"),
-        OTE: require("../assets/img/ote-marker-minified.png"),
-        WIND: require("../assets/img/wind-marker-minified.png"),
-        RURALCONNECT: require("../assets/img/rurcon-marker-minified.png"),
-      };
       if (this.buttons[cab].isOn) {
         let temp = [];
         if (this.storedMarkers.includes(format[cab])) {
@@ -313,7 +312,7 @@ export default {
             const marker = new google.maps.Marker({
               position: d.position,
               map: this.map,
-              icon: markerIcon[format[cab]],
+              icon: this.markerIcons[format[cab]],
             });
             marker.db = d;
 
@@ -347,7 +346,7 @@ export default {
           google.maps.geometry.poly.containsLocation(marker.getPosition(), p)
         ) {
           this.markers.forEach((m) => {
-            if (m.db.type === "DSLAM") {
+            if (m.db.name) {
               if (
                 google.maps.geometry.poly.containsLocation(m.getPosition(), p)
               ) {
@@ -358,7 +357,7 @@ export default {
         }
       });
       const text = `Cabinet ID ${marker.db._id}. ISP: ${marker.db.isp} AK: ${
-        ak ? ak.db.ak : "Unknown"
+        ak ? ak.db.name : "Unknown"
       }`;
       const infowindow = new google.maps.InfoWindow({
         content: text,
