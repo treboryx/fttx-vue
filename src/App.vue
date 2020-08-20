@@ -2,18 +2,21 @@
   <div id="app">
     <Header @setPage="setCurrentPage" />
     <Map v-if="currentPage === 'map'" />
+    <Add v-if="currentPage === 'add'" />
   </div>
 </template>
 
 <script>
 import Header from "./components/Header.vue";
 import Map from "./components/Map";
+import Add from "./components/Add";
 
 export default {
   name: "App",
   components: {
     Header,
     Map,
+    Add,
   },
   data() {
     return {

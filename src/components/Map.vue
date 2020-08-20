@@ -1,5 +1,6 @@
 <template>
   <div>
+    <loading :active.sync="isLoading" :is-full-page="fullPage"></loading>
     <GmapMap
       :center="myCoordinates"
       :zoom="zoom"
@@ -29,7 +30,7 @@
           lat: this.place.geometry.location.lat(),
           lng: this.place.geometry.location.lng(),
         }"
-        :icon="{ url: require('../assets/img/g-marker.png')}"
+        :icon="{ url: require('../assets/img/g-marker.png') }"
       ></Gmap-Marker>
       <!-- </cluster> -->
       <gmap-polygon :options="polygonOptions" :paths="paths"></gmap-polygon>
@@ -125,9 +126,35 @@
         </div>
       </div>
     </div>-->
+    <div
+      class="rounded relative h-48 w-36 left-2"
+      style="position: relative; top: 250px; z-index: 999;"
+    >
+      <div class="rounded bg-white shadow-md h-48 w-36 p-6 flex flex-col justify-around">
+        <div>
+          <p class="text-base text-gray-600">Cabinets</p>
+        </div>
+        <div>
+          <p class="text-2xl text-gray-700 font-bold">
+            <animated-number :value="numberOfCabinets" :duration="3000" round="1" />
+          </p>
+        </div>
+        <div>
+          <p class="text-base text-gray-600">Centers</p>
+        </div>
+        <div>
+          <p class="text-2xl text-gray-700 font-bold">
+            <animated-number :value="numberOfCenters" :duration="5000" round="1" />
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
+import Loading from "vue-loading-overlay";
+import "vue-loading-overlay/dist/vue-loading.css";
+import AnimatedNumber from "animated-number-vue";
 import axios from "axios";
 import * as MarkerClusterer from "marker-clusterer-plus";
 import { clusterStyle, mapStyle } from "../assets/options";
@@ -136,6 +163,8 @@ import borders from "../assets/borders";
 export default {
   data() {
     return {
+      isLoading: false,
+      fullPage: true,
       map: null,
       myCoordinates: {
         lat: 37.9432,
@@ -164,6 +193,8 @@ export default {
           text: "Rural Connect",
         },
       },
+      numberOfCabinets: 0,
+      numberOfCenters: 0,
       storedMarkers: [],
       markerCluster: null,
       debugging: true,
@@ -183,7 +214,7 @@ export default {
       currentMidx: null,
       openInfoWindow: null,
       infoOptions: {
-        content: "test",
+        content: null,
         //optional: offset infowindow so it visually sits nicely on top of our marker
         pixelOffset: {
           width: 0,
@@ -197,6 +228,10 @@ export default {
         RURALCONNECT: require("../assets/img/rurcon-marker-minified.png"),
       },
     };
+  },
+  components: {
+    Loading,
+    AnimatedNumber,
   },
   created() {
     // does the user have a saved center? use it instead of the default
@@ -217,6 +252,7 @@ export default {
     }
   },
   async mounted() {
+    this.isLoading = true;
     let ref = this;
     // add the map to a data object
     this.$refs.mapRef.$mapPromise.then((map) => (this.map = map));
@@ -225,8 +261,10 @@ export default {
     let dslam = await axios
       .get("https://api.fttx.gr/api/v1/centers?limit=0&approved=true")
       .then((r) => r);
+
+    this.numberOfCenters = dslam.data.data.length;
     dslam.data.data.forEach((d) => {
-      d.infoText = `Center ID: ${d.id}<br>NAME: ${d.name}<br>Center Database ID: ${d._id}`;
+      d.infoText = `Center ID: ${d.id}<br>NAME: <b>${d.name}</b><br>Center Database ID: ${d._id}`;
       const marker = new google.maps.Marker({
         position: d.position,
         map: this.map,
@@ -262,6 +300,7 @@ export default {
       .get("https://api.fttx.gr/api/v1/cabinets?limit=0") // must be &approved=true
       .then((r) => r);
     cabinets = cabinets.data.data.filter((d) => d.type !== "DSLAM");
+    this.numberOfCabinets = cabinets.length;
     cabinets.forEach((d) => {
       const marker = new google.maps.Marker({
         position: d.position,
@@ -279,6 +318,7 @@ export default {
       this.storedMarkers.push("WIND");
       this.storedMarkers.push("RURALCONNECT");
     });
+    this.isLoading = false;
   },
   methods: {
     async showCabinets(cab) {
@@ -462,11 +502,17 @@ export default {
           closest = i;
         }
       }
-
+      const cabinet = this.markers[closest];
+      const dis = google.maps.geometry.spherical.computeDistanceBetween(
+        this.markers[closest].position,
+        this.place.geometry.location
+      );
       // this.infoOptions.content = this.markers[closest].infoText;
-      this.infoOptions.content = `<a style="color: purple">Closest marker is <b>${d.toFixed(
+      this.infoOptions.content = `<a style="color: purple">Closest cabinet is <b>${dis.toFixed(
         2
-      )}</b> meters</a>`;
+      )} meters</b> away<br>ISP: ${cabinet.db.isp}<br>Cabinet ID ${
+        cabinet.db.id
+      }<br>Cabinet Database ID: ${cabinet.db._id}</a>`;
     },
   },
   computed: {
