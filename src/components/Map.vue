@@ -24,12 +24,14 @@
         @click="markerInfo(marker, index)"
       ></Gmap-Marker>-->
       <Gmap-Marker
+        @dragend="updateCoordinates"
         v-if="this.place"
         @click="showInfo()"
         :position="{
           lat: this.place.geometry.location.lat(),
           lng: this.place.geometry.location.lng(),
         }"
+        :draggable="true"
         :icon="{ url: require('../assets/img/g-marker.png') }"
       ></Gmap-Marker>
       <!-- </cluster> -->
@@ -456,6 +458,15 @@ export default {
         this.place = null;
       }
     },
+    updateCoordinates(location) {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ latLng: location.latLng }, (result, status) => {
+        if (status === google.maps.GeocoderStatus.OK) {
+          this.place = result[0];
+        }
+      });
+      if (this.infoWinOpen) this.infoWinOpen = false;
+    },
     handleDrag() {
       // get center and zoom level, store in localstorage
       let center = {
@@ -512,7 +523,9 @@ export default {
         2
       )} meters</b> away<br>ISP: ${cabinet.db.isp}<br>Cabinet ID ${
         cabinet.db.id
-      }<br>Cabinet Database ID: ${cabinet.db._id}</a>`;
+      }<br>Cabinet Database ID: ${cabinet.db._id}<br>Address of Cabinet: ${
+        cabinet.db.address.full
+      }</a>`;
     },
   },
   computed: {
