@@ -49,7 +49,7 @@
         ></gmap-autocomplete>
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
-          @click="usePlace"
+          @click="addButton"
         >Add</button>
       </label>
     </div>
@@ -229,6 +229,7 @@ export default {
         WIND: require("../assets/img/wind-marker-minified.png"),
         RURALCONNECT: require("../assets/img/rurcon-marker-minified.png"),
       },
+      markedMarker: null,
     };
   },
   components: {
@@ -266,7 +267,7 @@ export default {
 
     this.numberOfCenters = dslam.data.data.length;
     dslam.data.data.forEach((d) => {
-      d.infoText = `Center ID: ${d.id}<br>NAME: <b>${d.name}</b><br>Center Database ID: ${d._id}`;
+      d.infoText = `NAME: <strong><b>${d.name}</b></strong><br>Center ID: <strong><b>${d.id}</b></strong><br>Center Database ID: ${d._id}`;
       const marker = new google.maps.Marker({
         position: d.position,
         map: this.map,
@@ -398,9 +399,15 @@ export default {
           });
         }
       });
-      const text = `Cabinet ID ${marker.db._id}. ISP: ${marker.db.isp} AK: ${
+      const text = `Cabinet ID: <strong><b>${
+        marker.db.id
+      }</strong></b><br>ISP: <strong><b>${
+        marker.db.isp
+      }</strong></b><br>A/K: <strong><b>${
         ak ? ak.db.name : "Unknown"
-      }`;
+      }</strong></b><br>Type: <strong><b>${
+        marker.db.type
+      }</strong></b><br>Cabinet Database ID: ${marker.db._id}`;
       const infowindow = new google.maps.InfoWindow({
         content: text,
       });
@@ -433,6 +440,12 @@ export default {
         this.markerCluster.removeMarkers(
           this.markers.filter((d) => d.visible === false)
         );
+      }
+    },
+    addButton() {
+      if (this.markedMarker) {
+        this.$emit("addButtonValues", this.markedMarker);
+        this.$emit("setPage", "add");
       }
     },
     setDescription(description) {
@@ -498,7 +511,6 @@ export default {
         lng: this.place.geometry.location.lng(),
       };
       this.infoWindowPos = position;
-      //   this.infoOptions.content = this.place.formatted_address;
       this.infoWinOpen = !this.infoWinOpen;
 
       var distances = [];
@@ -518,14 +530,19 @@ export default {
         this.markers[closest].position,
         this.place.geometry.location
       );
-      // this.infoOptions.content = this.markers[closest].infoText;
-      this.infoOptions.content = `<a style="color: purple">Closest cabinet is <b>${dis.toFixed(
+
+      this.infoOptions.content = `<a style="color: purple">Closest cabinet is <strong><b>${dis.toFixed(
         2
-      )} meters</b> away<br>ISP: ${cabinet.db.isp}<br>Cabinet ID ${
+      )} meters</b></strong> away<br>ISP: <strong><b>${
+        cabinet.db.isp
+      }</b></strong><br>Type: <strong><b>${
+        cabinet.db.type
+      }</strong></b><br>Cabinet ID: <strong><b>${
         cabinet.db.id
-      }<br>Cabinet Database ID: ${cabinet.db._id}<br>Address of Cabinet: ${
-        cabinet.db.address.full
-      }</a>`;
+      }</strong></b><br>Cabinet Database ID: ${
+        cabinet.db._id
+      }<br>Address of Cabinet: ${cabinet.db.address.full}</a>`;
+      this.markedMarker = cabinet;
     },
   },
   computed: {

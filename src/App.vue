@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Header @setPage="setCurrentPage" />
-    <Map v-if="currentPage === 'map'" />
+    <Map @setPage="setCurrentPage" v-if="currentPage === 'map'" />
     <Add v-if="currentPage === 'add'" />
   </div>
 </template>

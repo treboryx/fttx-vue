@@ -76,6 +76,9 @@ export default {
       this.currPage = page;
       this.$emit("setPage", page);
     },
+    track() {
+      this.$ga.page("/");
+    },
   },
 };
 </script>
