@@ -183,6 +183,23 @@
         <span>×</span>
       </button>
     </div>
+    <div
+      v-if="failed"
+      class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-red-500"
+      style="margin: 0 35% 0 35%"
+    >
+      <span class="text-xl inline-block mr-5 align-middle">
+        <i class="fas fa-bell" />
+      </span>
+      <span class="inline-block align-middle mr-8">
+        <b class="capitalize">Failed!</b> Something went wrong while submitting a new Cabinet...
+      </span>
+      <button
+        class="absolute bg-transparent text-2xl font-semibold leading-none right-0 top-0 mt-4 mr-6 outline-none focus:outline-none"
+      >
+        <span>×</span>
+      </button>
+    </div>
   </div>
 </template>
 <script>
@@ -199,6 +216,7 @@ export default {
       name: null,
       email: null,
       success: false,
+      failed: false,
     };
   },
   methods: {
@@ -209,17 +227,21 @@ export default {
         position: { lat: Number(this.lat), lng: Number(this.lng) },
         type: this.type,
         img: this.img,
-        name: this.name,
+        username: this.name,
         email: this.email,
       };
-      if (this.type === "RURALCONNECT") data.type = "RURCON";
-      const res = await axios({
-        method: "post",
-        url: "https://api.fttx.gr/api/v1/cabinets",
-        headers: { "content-type": "application/json" },
-        data,
-      });
-      this.success = true;
+      try {
+        if (this.type === "RURALCONNECT") data.type = "RURCON";
+        const res = await axios({
+          method: "post",
+          url: "https://api.fttx.gr/api/v1/cabinets",
+          headers: { "content-type": "application/json" },
+          data,
+        });
+        if (res.data.succes === true) this.success = true;
+      } catch (e) {
+        this.failed = true;
+      }
     },
     setValues(m) {
       console.log("works");
