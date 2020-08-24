@@ -1,13 +1,18 @@
 <template>
   <div>
     <div class="md:flex md:justify-center mb-6">
-      <form class="w-full max-w-lg" @submit.prevent="submit" @addButtonValues="setValues">
+      <form
+        class="w-full max-w-lg"
+        @submit.prevent="submit"
+        @addButtonValues="setValues"
+      >
         <div class="flex flex-wrap -mx-3 mb-6">
           <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-id"
-            >Cabinet ID</label>
+              >Cabinet ID</label
+            >
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               id="grid-id"
@@ -22,7 +27,8 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-isp"
-            >ISP</label>
+              >ISP</label
+            >
             <div class="relative">
               <select
                 class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
@@ -56,12 +62,13 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-lat"
-            >Latitude</label>
+              >Latitude</label
+            >
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               id="grid-lat"
               type="number"
-              required
+              step="any"
               v-model="lat"
             />
             <!-- border-red-500 -->
@@ -71,12 +78,13 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-lng"
-            >Longtitude</label>
+              >Longtitude</label
+            >
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               id="grid-lng"
               type="number"
-              required
+              step="any"
               v-model="lng"
             />
             <!-- border-red-500 -->
@@ -88,7 +96,8 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-img"
-            >Image URL</label>
+              >Image URL</label
+            >
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               id="grid-img"
@@ -103,7 +112,8 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-type"
-            >Type</label>
+              >Type</label
+            >
             <div class="relative">
               <select
                 class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
@@ -137,7 +147,8 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-name"
-            >Your name</label>
+              >Your name</label
+            >
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               id="grid-name"
@@ -150,7 +161,8 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-email"
-            >Email</label>
+              >Email</label
+            >
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               id="grid-email"
@@ -163,42 +175,10 @@
         <button
           type="submit"
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-5"
-        >Submit</button>
+        >
+          Submit
+        </button>
       </form>
-    </div>
-    <div
-      v-if="success"
-      class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-green-500"
-      style="margin: 0 35% 0 35%"
-    >
-      <span class="text-xl inline-block mr-5 align-middle">
-        <i class="fas fa-bell" />
-      </span>
-      <span class="inline-block align-middle mr-8">
-        <b class="capitalize">Submitted!</b> Thanks for submitting a new cabinet! It's pending approval now...
-      </span>
-      <button
-        class="absolute bg-transparent text-2xl font-semibold leading-none right-0 top-0 mt-4 mr-6 outline-none focus:outline-none"
-      >
-        <span>×</span>
-      </button>
-    </div>
-    <div
-      v-if="failed"
-      class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-red-500"
-      style="margin: 0 35% 0 35%"
-    >
-      <span class="text-xl inline-block mr-5 align-middle">
-        <i class="fas fa-bell" />
-      </span>
-      <span class="inline-block align-middle mr-8">
-        <b class="capitalize">Failed!</b> Something went wrong while submitting a new Cabinet...
-      </span>
-      <button
-        class="absolute bg-transparent text-2xl font-semibold leading-none right-0 top-0 mt-4 mr-6 outline-none focus:outline-none"
-      >
-        <span>×</span>
-      </button>
     </div>
   </div>
 </template>
@@ -217,6 +197,7 @@ export default {
       email: null,
       success: false,
       failed: false,
+      error: null,
     };
   },
   methods: {
@@ -238,13 +219,18 @@ export default {
           headers: { "content-type": "application/json" },
           data,
         });
-        if (res.data.succes === true) this.success = true;
+        this.$toast.success(
+          "Submitted! Thanks for submitting a new cabinet! It's pending approval now..."
+        );
+        this.error = res.data;
       } catch (e) {
         this.failed = true;
+        this.$toast.error(
+          "Uh-oh! Something went wrong while trying to submit a new Cabinet. Make sure you have actual coordinates."
+        );
       }
     },
     setValues(m) {
-      console.log("works");
       this.lat = m.db.position.lat;
       this.lng = m.db.position.lng;
     },

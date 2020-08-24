@@ -5,7 +5,11 @@
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <img class="h-10 w-10" src="@/assets/img/fttx-logo.png" alt="FTTx.gr logo" />
+              <img
+                class="h-10 w-10"
+                src="@/assets/img/fttx-logo.png"
+                alt="FTTx.gr logo"
+              />
             </div>
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline">
@@ -17,7 +21,8 @@
                   ]"
                   @click.prevent="currentPage('map')"
                   class="px-3 py-2 rounded-md text-sm font-medium focus:outline-none focus:text-white focus:bg-gray-700"
-                >Map</a>
+                  >Map</a
+                >
                 <a
                   :class="[
                     currPage == 'add' ? 'text-white bg-gray-900' : '',
@@ -26,11 +31,13 @@
                   @click.prevent="currentPage('add')"
                   href="/"
                   class="ml-4 px-3 py-2 rounded-md text-sm font-medium hover:text-white hover:bg-gray-700 focus:outline-none focus:text-white focus:bg-gray-700"
-                >Add Cabinet</a>
+                  >Add Cabinet</a
+                >
                 <a
                   href="https://github.com/fttx-gr"
                   class="text-gray-300 ml-4 px-3 py-2 rounded-md text-sm font-medium hover:text-white hover:bg-gray-700 focus:outline-none focus:text-white focus:bg-gray-700"
-                >GitHub</a>
+                  >GitHub</a
+                >
               </div>
             </div>
           </div>
@@ -41,7 +48,12 @@
                 class="p-1 border-2 border-transparent text-gray-400 rounded-full hover:text-white focus:outline-none focus:text-white focus:bg-gray-700"
                 aria-label="Notifications"
               >
-                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <svg
+                  class="h-6 w-6"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -75,9 +87,6 @@ export default {
     currentPage(page) {
       this.currPage = page;
       this.$emit("setPage", page);
-    },
-    track() {
-      this.$ga.page("/");
     },
   },
 };
