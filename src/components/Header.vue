@@ -5,11 +5,7 @@
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <img
-                class="h-10 w-10"
-                src="@/assets/img/fttx-logo.png"
-                alt="FTTx.gr logo"
-              />
+              <img class="h-10 w-10" src="@/assets/img/fttx-logo.png" alt="FTTx.gr logo" />
             </div>
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline">
@@ -21,8 +17,7 @@
                   ]"
                   @click.prevent="currentPage('map')"
                   class="px-3 py-2 rounded-md text-sm font-medium focus:outline-none focus:text-white focus:bg-gray-700"
-                  >Map</a
-                >
+                >Map</a>
                 <a
                   :class="[
                     currPage == 'add' ? 'text-white bg-gray-900' : '',
@@ -31,13 +26,11 @@
                   @click.prevent="currentPage('add')"
                   href="/"
                   class="ml-4 px-3 py-2 rounded-md text-sm font-medium hover:text-white hover:bg-gray-700 focus:outline-none focus:text-white focus:bg-gray-700"
-                  >Add Cabinet</a
-                >
+                >Add Cabinet</a>
                 <a
                   href="https://github.com/fttx-gr"
                   class="text-gray-300 ml-4 px-3 py-2 rounded-md text-sm font-medium hover:text-white hover:bg-gray-700 focus:outline-none focus:text-white focus:bg-gray-700"
-                  >GitHub</a
-                >
+                >GitHub</a>
               </div>
             </div>
           </div>
@@ -48,12 +41,7 @@
                 class="p-1 border-2 border-transparent text-gray-400 rounded-full hover:text-white focus:outline-none focus:text-white focus:bg-gray-700"
                 aria-label="Notifications"
               >
-                <svg
-                  class="h-6 w-6"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -64,6 +52,64 @@
               </button>
             </div>
           </div>
+          <div class="-mr-2 flex md:hidden" style="z-index: 9999;">
+            <!-- Mobile menu button -->
+            <button
+              @click.prevent="hamburgerClick()"
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:bg-gray-700 focus:text-white"
+            >
+              <!-- Menu open: "hidden", Menu closed: "block" -->
+              <svg
+                :class="hamburger ? 'hidden' : 'block'"
+                class="h-6 w-6"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              <!-- Menu open: "block", Menu closed: "hidden" -->
+              <svg
+                :class="hamburger ? 'block' : 'hidden'"
+                class="h-6 w-6"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div :class="hamburger ? 'block md:hidden' : 'hidden md:hidden'">
+        <div class="px-2 pt-2 pb-3 sm:px-3">
+          <a
+            href="/"
+            :class="currPage == 'map' ? 'text-white bg-gray-900' : 'text-gray-300'"
+            @click.prevent="currentPage('map'); hamburgerClick()"
+            class="block px-3 py-2 rounded-md text-base font-medium text-white focus:outline-none focus:text-white focus:bg-gray-700"
+          >Map</a>
+          <a
+            href="/"
+            :class="currPage == 'add' ? 'text-white bg-gray-900' : 'text-gray-300'"
+            @click.prevent="currentPage('add'); hamburgerClick()"
+            class="mt-1 block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none focus:text-white focus:bg-gray-700"
+          >Add Cabinet</a>
+          <a
+            href="https://github.com/fttx-gr"
+            class="mt-1 block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none focus:text-white focus:bg-gray-700"
+          >GitHub</a>
         </div>
       </div>
     </nav>
@@ -81,12 +127,17 @@ export default {
         events: ["dblclick", "click"],
         isActive: true,
       },
+      hamburger: false,
     };
   },
   methods: {
     currentPage(page) {
       this.currPage = page;
       this.$emit("setPage", page);
+    },
+    hamburgerClick() {
+      this.hamburger = !this.hamburger;
+      this.$root.$emit("hamburgerState", this.hamburger);
     },
   },
 };

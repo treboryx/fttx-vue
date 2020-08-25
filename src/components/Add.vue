@@ -1,18 +1,13 @@
 <template>
   <div>
-    <div class="md:flex md:justify-center mb-6">
-      <form
-        class="w-full max-w-lg"
-        @submit.prevent="submit"
-        @addButtonValues="setValues"
-      >
+    <div class="md:flex md:justify-center mb-6 flex justify-center mt-8">
+      <form class="w-5/6 max-w-lg" @submit.prevent="submit" @addButtonValues="setValues">
         <div class="flex flex-wrap -mx-3 mb-6">
           <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-id"
-              >Cabinet ID</label
-            >
+            >Cabinet ID</label>
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               id="grid-id"
@@ -27,8 +22,7 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-isp"
-              >ISP</label
-            >
+            >ISP</label>
             <div class="relative">
               <select
                 class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
@@ -62,8 +56,7 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-lat"
-              >Latitude</label
-            >
+            >Latitude</label>
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               id="grid-lat"
@@ -78,8 +71,7 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-lng"
-              >Longtitude</label
-            >
+            >Longtitude</label>
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               id="grid-lng"
@@ -96,8 +88,7 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-img"
-              >Image URL</label
-            >
+            >Image URL</label>
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
               id="grid-img"
@@ -112,8 +103,7 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-type"
-              >Type</label
-            >
+            >Type</label>
             <div class="relative">
               <select
                 class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
@@ -147,8 +137,7 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-name"
-              >Your name</label
-            >
+            >Your name</label>
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               id="grid-name"
@@ -161,8 +150,7 @@
             <label
               class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               for="grid-email"
-              >Email</label
-            >
+            >Email</label>
             <input
               class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               id="grid-email"
@@ -175,9 +163,7 @@
         <button
           type="submit"
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-5"
-        >
-          Submit
-        </button>
+        >Submit</button>
       </form>
     </div>
   </div>
