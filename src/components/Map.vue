@@ -46,10 +46,10 @@
           @place_changed="setPlace"
         ></gmap-autocomplete>
         <!-- Hidden till it's functional -->
-        <!-- <button
+        <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
           @click="addButton"
-        >Add</button>-->
+        >Add</button>
       </label>
     </div>
     <div class="relative h-full w-full">
@@ -300,6 +300,7 @@ export default {
       this.polygons.push(storedPoly);
       this.paths.push(e[0]);
     });
+    this.isLoading = false;
     // POLYGON LOADING END -- LOAD EVERYTHING ELSE BUT INVISIBLE (NOTE: This part here is what causing the initial lag spike because there's just too much data. Working on it.)
     let cabinets = await axios
       .get("https://api.fttx.gr/api/v1/cabinets?limit=0") // must be &approved=true
@@ -323,7 +324,6 @@ export default {
       this.storedMarkers.push("WIND");
       this.storedMarkers.push("RURALCONNECT");
     });
-    this.isLoading = false;
   },
   methods: {
     async showCabinets(cab) {
@@ -447,8 +447,8 @@ export default {
     },
     addButton() {
       if (this.markedMarker) {
-        this.$emit("addButtonValues", this.markedMarker);
         this.$emit("setPage", "add");
+        this.$root.$emit("addButtonValues", this.markedMarker);
       }
     },
     setDescription(description) {
