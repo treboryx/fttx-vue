@@ -38,7 +38,11 @@
       <gmap-polygon :options="polygonOptions" :paths="paths"></gmap-polygon>
     </GmapMap>
     <!-- "top: 0; right: 0; width: calc(100% - 100px); position: absolute; z-index: 100" -->
-    <div v-if="!hamburger" style="position: absolute; top: 70px; z-index: 999;" class="w-full">
+    <div
+      v-if="!hamburger"
+      style="position: absolute; top: 70px; z-index: 999;"
+      class="w-full"
+    >
       <label>
         <gmap-autocomplete
           placeholder="Type an address Ex. Filellinon 10, Athens, Greece"
@@ -49,11 +53,16 @@
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
           @click="addButton"
-        >Add</button>
+        >
+          Add
+        </button>
       </label>
     </div>
     <div class="relative h-full w-full">
-      <div class="absolute bottom-0 right-0 h-64 w-48" style="text-align: left;">
+      <div
+        class="absolute bottom-0 right-0 h-64 w-48"
+        style="text-align: left;"
+      >
         <button
           @click="
             buttons.ote.isOn = !buttons.ote.isOn;
@@ -67,7 +76,9 @@
           type="button"
           style="position: fixed; z-index: 999; bottom: 600px;"
           class="bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
-        >{{ buttons.ote.text }}</button>
+        >
+          {{ buttons.ote.text }}
+        </button>
         <button
           @click="
             buttons.wind.isOn = !buttons.wind.isOn;
@@ -80,7 +91,9 @@
           "
           style="position: fixed; z-index: 999; bottom: 550px;"
           class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-        >{{ buttons.wind.text }}</button>
+        >
+          {{ buttons.wind.text }}
+        </button>
         <button
           @click="
             buttons.vf.isOn = !buttons.vf.isOn;
@@ -93,7 +106,9 @@
           "
           style="position: fixed; z-index: 999; bottom: 500px;"
           class="bg-red-700 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
-        >{{ buttons.vf.text }}</button>
+        >
+          {{ buttons.vf.text }}
+        </button>
         <button
           @click="
             buttons.rurcon.isOn = !buttons.rurcon.isOn;
@@ -106,7 +121,9 @@
           "
           style="position: fixed; z-index: 999; bottom: 450px;"
           class="bg-orange-800 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-        >{{ buttons.rurcon.text }}</button>
+        >
+          {{ buttons.rurcon.text }}
+        </button>
       </div>
     </div>
 
@@ -131,13 +148,19 @@
       class="rounded relative h-48 w-36 left-2 invisible lg:visible xl:visible"
       style="position: relative; top: 250px; z-index: 999;"
     >
-      <div class="rounded bg-white shadow-md h-48 w-36 p-6 flex flex-col justify-around">
+      <div
+        class="rounded bg-white shadow-md h-48 w-36 p-6 flex flex-col justify-around"
+      >
         <div>
           <p class="text-base text-gray-600">Cabinets</p>
         </div>
         <div>
           <p class="text-2xl text-gray-700 font-bold">
-            <animated-number :value="numberOfCabinets" :duration="3000" round="1" />
+            <animated-number
+              :value="numberOfCabinets"
+              :duration="3000"
+              round="1"
+            />
           </p>
         </div>
         <div>
@@ -145,7 +168,11 @@
         </div>
         <div>
           <p class="text-2xl text-gray-700 font-bold">
-            <animated-number :value="numberOfCenters" :duration="5000" round="1" />
+            <animated-number
+              :value="numberOfCenters"
+              :duration="5000"
+              round="1"
+            />
           </p>
         </div>
       </div>
@@ -279,7 +306,7 @@ export default {
       const infowindow = new google.maps.InfoWindow({
         content: d.infoText,
       });
-      marker.addListener("click", function () {
+      marker.addListener("click", function() {
         this.showInfo;
         infowindow.open(this.map, marker);
       });
@@ -302,28 +329,32 @@ export default {
     });
     this.isLoading = false;
     // POLYGON LOADING END -- LOAD EVERYTHING ELSE BUT INVISIBLE (NOTE: This part here is what causing the initial lag spike because there's just too much data. Working on it.)
-    let cabinets = await axios
-      .get("https://api.fttx.gr/api/v1/cabinets?limit=0") // must be &approved=true
-      .then((r) => r);
-    cabinets = cabinets.data.data.filter((d) => d.type !== "DSLAM");
-    this.numberOfCabinets = cabinets.length;
-    cabinets.forEach((d) => {
-      const marker = new google.maps.Marker({
-        position: d.position,
-        map: this.map,
-        icon: this.markerIcons[d.isp],
+    const initialize = async (page) => {
+      const results = await axios
+        .get(`https://api.fttx.gr/api/v1/cabinets?limit=1000&page=${page}`) // must be &approved=true
+        .then((r) => r);
+      const cabinets = results.data.data.filter((d) => d.type !== "DSLAM");
+      this.numberOfCabinets += cabinets.length;
+      cabinets.forEach((d) => {
+        const marker = new google.maps.Marker({
+          position: d.position,
+          map: this.map,
+          icon: this.markerIcons[d.isp],
+        });
+        marker.setVisible(false);
+        marker.db = d;
+        marker.addListener("click", function() {
+          ref.infoWindow(marker);
+        });
+        this.markers.push(marker);
       });
-      marker.setVisible(false);
-      marker.db = d;
-      marker.addListener("click", function () {
-        ref.infoWindow(marker);
-      });
-      this.markers.push(marker);
-      this.storedMarkers.push("OTE");
-      this.storedMarkers.push("Vodafone");
-      this.storedMarkers.push("WIND");
-      this.storedMarkers.push("RURALCONNECT");
-    });
+      if (results.data.pagination.next) f(results.data.pagination.next.page);
+    };
+    initiliaze(1);
+    this.storedMarkers.push("OTE");
+    this.storedMarkers.push("Vodafone");
+    this.storedMarkers.push("WIND");
+    this.storedMarkers.push("RURALCONNECT");
   },
   methods: {
     async showCabinets(cab) {
@@ -360,8 +391,7 @@ export default {
               icon: this.markerIcons[format[cab]],
             });
             marker.db = d;
-
-            marker.addListener("click", function () {
+            marker.addListener("click", function() {
               ref.infoWindow(marker);
             });
             this.markers.push(marker);
@@ -558,8 +588,14 @@ export default {
       }
 
       return {
-        lat: this.map.getCenter().lat().toFixed(4),
-        lng: this.map.getCenter().lng().toFixed(4),
+        lat: this.map
+          .getCenter()
+          .lat()
+          .toFixed(4),
+        lng: this.map
+          .getCenter()
+          .lng()
+          .toFixed(4),
       };
     },
   },
