@@ -350,7 +350,7 @@ export default {
       });
       if (results.data.pagination.next) f(results.data.pagination.next.page);
     };
-    initiliaze(1);
+    initialize(1);
     this.storedMarkers.push("OTE");
     this.storedMarkers.push("Vodafone");
     this.storedMarkers.push("WIND");
