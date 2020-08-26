@@ -348,7 +348,8 @@ export default {
         });
         this.markers.push(marker);
       });
-      if (results.data.pagination.next) f(results.data.pagination.next.page);
+      if (results.data.pagination.next)
+        initialize(results.data.pagination.next.page);
     };
     initialize(1);
     this.storedMarkers.push("OTE");
