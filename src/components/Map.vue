@@ -50,12 +50,12 @@
           @place_changed="setPlace"
         ></gmap-autocomplete>
         <!-- Hidden till it's functional -->
-        <button
+        <!-- <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
           @click="addButton"
         >
           Add
-        </button>
+        </button> -->
       </label>
     </div>
     <div class="relative h-full w-full">
