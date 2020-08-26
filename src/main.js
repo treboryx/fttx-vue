@@ -9,10 +9,14 @@ import "vue-toastification/dist/index.css";
 import * as VueGoogleMaps from "vue2-google-maps";
 Vue.config.productionTip = false;
 Vue.use(VueGeolocation);
+import { key } from "../config.js";
 
 Vue.use(VueGoogleMaps, {
   load: {
-    key: "AIzaSyBg4wE12cEcuWJGQMbKNnb6m2CUTydSZSY",
+    key:
+      process.env.NODE_ENV === "development"
+        ? key
+        : "AIzaSyBg4wE12cEcuWJGQMbKNnb6m2CUTydSZSY",
     libraries: ["places", "geometry"],
   },
 });
