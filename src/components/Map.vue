@@ -46,63 +46,67 @@
           @place_changed="setPlace"
         ></gmap-autocomplete>
         <!-- Hidden till it's functional -->
-        <!-- <button
+        <button
+          :disabled="!markedMarker"
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
+          :class="[markedMarker ? '': 'opacity-50 cursor-not-allowed']"
           @click="addButton"
-        >
-          Add
-        </button>-->
+        >Add</button>
       </label>
     </div>
     <div class="relative h-full w-full" v-if="!hamburger">
       <div class="absolute bottom-0 right-0 h-64 w-16" style="text-align: left;">
         <button
+          :disabled="!finishedLoading"
           @click="
             buttons.ote.isOn = !buttons.ote.isOn;
             showCabinets('ote'); buttons.ote.isOn
               ? (buttons.ote.text = '✔ OTE')
               : (buttons.ote.text = 'OTE')
           "
-          :class="buttons.ote.isOn ? 'bg-blue-300': 'bg-blue-700'"
+          :class="[buttons.ote.isOn ? 'bg-blue-300': 'bg-blue-700', finishedLoading ? '': 'opacity-50 cursor-not-allowed']"
           style="position: fixed; z-index: 999; bottom: 600px;"
           class="hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
         >
           <img :src="markerIcons.OTE" />
         </button>
         <button
+          :disabled="!finishedLoading"
           @click="
             buttons.wind.isOn = !buttons.wind.isOn;
             showCabinets('wind'); buttons.wind.isOn
               ? (buttons.wind.text = '✔ WIND')
               : (buttons.wind.text = 'WIND')
           "
-          :class="buttons.wind.isOn ? 'bg-blue-400': 'bg-blue-500'"
+          :class="[buttons.wind.isOn ? 'bg-blue-400': 'bg-blue-500', finishedLoading ? '': 'opacity-50 cursor-not-allowed']"
           style="position: fixed; z-index: 999; bottom: 550px;"
           class="hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
         >
           <img :src="markerIcons.WIND" />
         </button>
         <button
+          :disabled="!finishedLoading"
           @click="
             buttons.vf.isOn = !buttons.vf.isOn;
             showCabinets('vf');  buttons.vf.isOn
               ? (buttons.vf.text = '✔ Vodafone')
               : (buttons.vf.text = 'Vodafone')
           "
-          :class="buttons.vf.isOn ? 'bg-red-300': 'bg-red-700'"
+          :class="[buttons.vf.isOn ? 'bg-red-300': 'bg-red-700', finishedLoading ? '': 'opacity-50 cursor-not-allowed']"
           style="position: fixed; z-index: 999; bottom: 500px;"
           class="hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
         >
           <img :src="markerIcons.Vodafone" />
         </button>
         <button
+          :disabled="!finishedLoading"
           @click="
             buttons.rurcon.isOn = !buttons.rurcon.isOn;
             showCabinets('rurcon'); buttons.rurcon.isOn
               ? (buttons.rurcon.text = '✔')
               : (buttons.rurcon.text = '')
           "
-          :class="buttons.rurcon.isOn ? 'bg-orange-300': 'bg-orange-800'"
+          :class="[buttons.rurcon.isOn ? 'bg-orange-300': 'bg-orange-800', finishedLoading ? '': 'opacity-50 cursor-not-allowed']"
           style="position: fixed; z-index: 999; bottom: 450px;"
           class="hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
         >
@@ -235,6 +239,7 @@ export default {
       },
       markedMarker: null,
       hamburger: false,
+      finishedLoading: false,
     };
   },
   components: {
@@ -328,8 +333,10 @@ export default {
       });
       if (results.data.pagination.next)
         initialize(results.data.pagination.next.page);
+      else this.finishedLoading = true;
     };
-    initialize(1);
+    await initialize(1);
+    this.$toast.info("Loading cabinets...");
     this.storedMarkers.push("OTE");
     this.storedMarkers.push("Vodafone");
     this.storedMarkers.push("WIND");
@@ -419,7 +426,11 @@ export default {
         ak ? ak.db.name : "Unknown"
       }</strong></b><br>Type: <strong><b>${
         marker.db.type
-      }</strong></b><br>Cabinet Database ID: ${marker.db._id}`;
+      }</strong></b><br>Cabinet Database ID: ${
+        marker.db._id
+      }<br><a style="font-weight: bold; color: purple;" target="_blank" href="${
+        marker.db.img_url
+      }">Click Here for image</a>`;
       const infowindow = new google.maps.InfoWindow({
         content: text,
       });
@@ -456,8 +467,12 @@ export default {
     },
     addButton() {
       if (this.markedMarker) {
+        const pos = {
+          lat: this.markedMarker.position.lat(),
+          lng: this.markedMarker.position.lng(),
+        };
+        localStorage.add = JSON.stringify(pos);
         this.$emit("setPage", "add");
-        this.$root.$emit("addButtonValues", this.markedMarker);
       }
     },
     setDescription(description) {
