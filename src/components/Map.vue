@@ -314,7 +314,9 @@ export default {
     // POLYGON LOADING END -- LOAD EVERYTHING ELSE BUT INVISIBLE (NOTE: This part here is what causing the initial lag spike because there's just too much data. Working on it.)
     const initialize = async (page) => {
       const results = await axios
-        .get(`https://api.fttx.gr/api/v1/cabinets?limit=1000&page=${page}`) // must be &approved=true
+        .get(
+          `https://api.fttx.gr/api/v1/cabinets?limit=1000&page=${page}&approved=true`
+        )
         .then((r) => r);
       const cabinets = results.data.data.filter((d) => d.type !== "DSLAM");
       this.numberOfCabinets += cabinets.length;
@@ -363,7 +365,7 @@ export default {
         } else {
           let c = await axios
             .get(
-              `https://api.fttx.gr/api/v1/cabinets?isp=${format[cab]}&limit=0`
+              `https://api.fttx.gr/api/v1/cabinets?isp=${format[cab]}&limit=0&approved=true`
             )
             .then((r) => r);
 
