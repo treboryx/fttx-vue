@@ -240,6 +240,7 @@ export default {
       markedMarker: null,
       hamburger: false,
       finishedLoading: false,
+      cabinetQuery: null,
     };
   },
   components: {
@@ -267,11 +268,13 @@ export default {
   async mounted() {
     this.isLoading = true;
     let ref = this;
+
     // add the map to a data object
     this.$refs.mapRef.$mapPromise.then((map) => (this.map = map));
     this.$root.$on("hamburgerState", (state) => {
       this.hamburger = state;
     });
+
     // DSLAM LOADING
     let dslam = await axios
       .get("https://api.fttx.gr/api/v1/centers?limit=0&approved=true")
@@ -311,6 +314,33 @@ export default {
       this.paths.push(e[0]);
     });
     this.isLoading = false;
+    // cabinet query start
+    const cabQuery = "cabinet?id=";
+    if (window.location.href.includes(cabQuery)) {
+      const cabId = window.location.href.split(cabQuery)[1];
+      console.log(cabId);
+      let c = await axios
+        .get(`https://api.fttx.gr/api/v1/cabinets/${cabId}`)
+        .then((r) => r);
+      c = c.data.data;
+      const marker = new google.maps.Marker({
+        position: c.position,
+        map: this.map,
+        icon: this.markerIcons[c.isp],
+      });
+      marker.db = c;
+      ref.infoWindow(marker);
+      marker.addListener("click", function () {
+        ref.infoWindow(marker);
+      });
+      this.myCoordinates = {
+        lat: c.position.lat,
+        lng: c.position.lng,
+      };
+      this.zoom = 17;
+      this.cabinetQuery = cabId;
+    }
+    // cabinet query end
     // POLYGON LOADING END -- LOAD EVERYTHING ELSE BUT INVISIBLE (NOTE: This part here is what causing the initial lag spike because there's just too much data. Working on it.)
     const initialize = async (page) => {
       const results = await axios
@@ -321,6 +351,8 @@ export default {
       const cabinets = results.data.data.filter((d) => d.type !== "DSLAM");
       this.numberOfCabinets += cabinets.length;
       cabinets.forEach((d) => {
+        // check if a cabinet is queried and if it's stored in cabinetQuery, exclude it from loading because it's already loaded.
+        if (this.cabinetQuery && d._id === this.cabinetQuery) return;
         const marker = new google.maps.Marker({
           position: d.position,
           map: this.map,
@@ -432,7 +464,9 @@ export default {
         marker.db._id
       }<br><a style="font-weight: bold; color: purple;" target="_blank" href="${
         marker.db.img_url
-      }">Click Here for image</a>`;
+      }">Click Here for image</a><br><a style="font-weight: bold; color: purple;" target="_blank" href="https://fttx.gr/cabinet?id=${
+        marker.db._id
+      }">URL to this Cabinet</a>`;
       const infowindow = new google.maps.InfoWindow({
         content: text,
       });
@@ -590,10 +624,8 @@ export default {
     },
   },
   async created() {
-    const cabQuery = "cabinet?id=";
-    if (window.location.pathname.includes(cabQuery)) {
-      const cabId = window.location.pathname.split(cabQuery)[1];
-    }
+    const ref = this;
+    //
   },
 };
 </script>
