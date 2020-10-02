@@ -38,7 +38,11 @@
       <gmap-polygon :options="polygonOptions" :paths="paths"></gmap-polygon>
     </GmapMap>
     <!-- "top: 0; right: 0; width: calc(100% - 100px); position: absolute; z-index: 100" -->
-    <div v-if="!hamburger" style="position: absolute; top: 70px; z-index: 999;" class="w-full">
+    <div
+      v-if="!hamburger"
+      style="position: absolute; top: 70px; z-index: 999"
+      class="w-full"
+    >
       <label>
         <gmap-autocomplete
           placeholder="Type an address Ex. Filellinon 10, Athens, Greece"
@@ -49,23 +53,29 @@
         <button
           :disabled="!markedMarker"
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
-          :class="[markedMarker ? '': 'opacity-50 cursor-not-allowed']"
+          :class="[markedMarker ? '' : 'opacity-50 cursor-not-allowed']"
           @click="addButton"
-        >Add</button>
+        >
+          Add
+        </button>
       </label>
     </div>
     <div class="relative h-full w-full" v-if="!hamburger">
-      <div class="absolute bottom-0 right-0 h-64 w-16" style="text-align: left;">
+      <div class="absolute bottom-0 right-0 h-64 w-16" style="text-align: left">
         <button
           :disabled="!finishedLoading"
           @click="
             buttons.ote.isOn = !buttons.ote.isOn;
-            showCabinets('ote'); buttons.ote.isOn
+            showCabinets('ote');
+            buttons.ote.isOn
               ? (buttons.ote.text = '✔ OTE')
-              : (buttons.ote.text = 'OTE')
+              : (buttons.ote.text = 'OTE');
           "
-          :class="[buttons.ote.isOn ? 'bg-blue-300': 'bg-blue-700', finishedLoading ? '': 'opacity-50 cursor-not-allowed']"
-          style="position: fixed; z-index: 999; bottom: 600px;"
+          :class="[
+            buttons.ote.isOn ? 'bg-blue-300' : 'bg-blue-700',
+            finishedLoading ? '' : 'opacity-50 cursor-not-allowed',
+          ]"
+          style="position: fixed; z-index: 999; bottom: 600px"
           class="hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
         >
           <img :src="markerIcons.OTE" />
@@ -74,12 +84,16 @@
           :disabled="!finishedLoading"
           @click="
             buttons.wind.isOn = !buttons.wind.isOn;
-            showCabinets('wind'); buttons.wind.isOn
+            showCabinets('wind');
+            buttons.wind.isOn
               ? (buttons.wind.text = '✔ WIND')
-              : (buttons.wind.text = 'WIND')
+              : (buttons.wind.text = 'WIND');
           "
-          :class="[buttons.wind.isOn ? 'bg-blue-400': 'bg-blue-500', finishedLoading ? '': 'opacity-50 cursor-not-allowed']"
-          style="position: fixed; z-index: 999; bottom: 550px;"
+          :class="[
+            buttons.wind.isOn ? 'bg-blue-400' : 'bg-blue-500',
+            finishedLoading ? '' : 'opacity-50 cursor-not-allowed',
+          ]"
+          style="position: fixed; z-index: 999; bottom: 550px"
           class="hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
         >
           <img :src="markerIcons.WIND" />
@@ -88,12 +102,16 @@
           :disabled="!finishedLoading"
           @click="
             buttons.vf.isOn = !buttons.vf.isOn;
-            showCabinets('vf');  buttons.vf.isOn
+            showCabinets('vf');
+            buttons.vf.isOn
               ? (buttons.vf.text = '✔ Vodafone')
-              : (buttons.vf.text = 'Vodafone')
+              : (buttons.vf.text = 'Vodafone');
           "
-          :class="[buttons.vf.isOn ? 'bg-red-300': 'bg-red-700', finishedLoading ? '': 'opacity-50 cursor-not-allowed']"
-          style="position: fixed; z-index: 999; bottom: 500px;"
+          :class="[
+            buttons.vf.isOn ? 'bg-red-300' : 'bg-red-700',
+            finishedLoading ? '' : 'opacity-50 cursor-not-allowed',
+          ]"
+          style="position: fixed; z-index: 999; bottom: 500px"
           class="hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
         >
           <img :src="markerIcons.Vodafone" />
@@ -102,12 +120,16 @@
           :disabled="!finishedLoading"
           @click="
             buttons.rurcon.isOn = !buttons.rurcon.isOn;
-            showCabinets('rurcon'); buttons.rurcon.isOn
+            showCabinets('rurcon');
+            buttons.rurcon.isOn
               ? (buttons.rurcon.text = '✔')
-              : (buttons.rurcon.text = '')
+              : (buttons.rurcon.text = '');
           "
-          :class="[buttons.rurcon.isOn ? 'bg-orange-300': 'bg-orange-800', finishedLoading ? '': 'opacity-50 cursor-not-allowed']"
-          style="position: fixed; z-index: 999; bottom: 450px;"
+          :class="[
+            buttons.rurcon.isOn ? 'bg-orange-300' : 'bg-orange-800',
+            finishedLoading ? '' : 'opacity-50 cursor-not-allowed',
+          ]"
+          style="position: fixed; z-index: 999; bottom: 450px"
           class="hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
         >
           <img :src="markerIcons.RURALCONNECT" />
@@ -115,34 +137,23 @@
       </div>
     </div>
 
-    <!-- <div v-if="debugging" style="z-index: 999;">
-      <div
-        style="max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between"
-      >
-        <div>
-          <h1>Your coordinates:</h1>
-          <p>{{ myCoordinates.lat }} Latitude, {{ myCoordinates.lng }} Longitude</p>
-        </div>
-        <div>
-          <h1>Map coordinates:</h1>
-          <p>
-            {{ mapCoordinates.lat }} Latitude,
-            {{ mapCoordinates.lng }} Longitude
-          </p>
-        </div>
-      </div>
-    </div>-->
     <div
       class="rounded relative h-48 w-36 left-2 invisible lg:visible xl:visible"
-      style="position: relative; top: 250px; z-index: 999;"
+      style="position: relative; top: 250px; z-index: 999"
     >
-      <div class="rounded bg-white shadow-md h-48 w-36 p-6 flex flex-col justify-around">
+      <div
+        class="rounded bg-white shadow-md h-48 w-36 p-6 flex flex-col justify-around"
+      >
         <div>
           <p class="text-base text-gray-600">Cabinets</p>
         </div>
         <div>
           <p class="text-2xl text-gray-700 font-bold">
-            <animated-number :value="numberOfCabinets" :duration="3000" round="1" />
+            <animated-number
+              :value="numberOfCabinets"
+              :duration="3000"
+              round="1"
+            />
           </p>
         </div>
         <div>
@@ -150,15 +161,21 @@
         </div>
         <div>
           <p class="text-2xl text-gray-700 font-bold">
-            <animated-number :value="numberOfCenters" :duration="5000" round="1" />
+            <animated-number
+              :value="numberOfCenters"
+              :duration="5000"
+              round="1"
+            />
           </p>
         </div>
       </div>
     </div>
     <div
-      style="position: absolute; bottom: 0px; z-index: 0;"
+      style="position: absolute; bottom: 0px; z-index: 0"
       class="w-full text-base text-white"
-    >hello@fttx.gr</div>
+    >
+      hello@fttx.gr
+    </div>
   </div>
 </template>
 <script>
